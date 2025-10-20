@@ -5,7 +5,7 @@
 ## ✨ Socials & Stars
 
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/xc4D33wBmA)
-[![GitHub Stars](https://img.shields.io/github/stars/Ash1421/QuickA-Cleanup?style=for-the-badge&color=gold)](https://github.com/Ash1421/Midnight-Ash)
+[![GitHub Stars](https://img.shields.io/github/stars/Ash1421/QuickA-Cleanup?style=for-the-badge&color=gold)](https://github.com/Ash1421/QuickA-Cleanup)
 
 ## Badges and Repository information
 
