@@ -2,17 +2,21 @@
 
 > Smart Quick Access cleaner for Windows Explorer – cross-version, lightweight, and fast.
 
----
+## ✨ Socials & Stars
 
-## Badges and Repositorie information
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/xc4D33wBmA)
+[![GitHub Stars](https://img.shields.io/github/stars/Ash1421/QuickA-Cleanup?style=for-the-badge&color=gold)](https://github.com/Ash1421/Midnight-Ash)
+
+## Badges and Repository information
 
 [![.NET](https://img.shields.io/badge/Built%20With-.NET%208/9-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20Only-blue?style=for-the-badge&logo=windows)](https://learn.microsoft.com/en-us/windows/)
 [![Self-Contained](https://img.shields.io/badge/Deployment-Self--Contained-purple?style=for-the-badge)](#-deployment)
-[![Version](https://img.shields.io/badge/version-v1.1.0-green?style=for-the-badge)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/v1.1.0)
+[![Version](https://img.shields.io/badge/version-v1.2.1-green?style=for-the-badge)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/v1.2.1)
+
 ---
 
-## 📜 Liscense
+## 📜 Liscensed Under
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-gold.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
 
@@ -61,6 +65,14 @@ Resulting file:
 
 ```bash
 dotnet publish -c Release -f net9.0 -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true
+```
+
+---
+
+### ✅ Building Both .NET 8.0 and .NET 9.0 Build
+
+```bash
+dotnet publish -c Release -f net8.0 -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true && dotnet publish -c Release -f net9.0 -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true
 ```
 
 Resulting file:
