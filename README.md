@@ -9,10 +9,10 @@
 
 ## Badges and Repository information
 
+[![Version](https://img.shields.io/badge/version-v1.2.1-blue?style=for-the-badge)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/v1.2.1)
 [![.NET](https://img.shields.io/badge/Built%20With-.NET%208/9-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20Only-blue?style=for-the-badge&logo=windows)](https://learn.microsoft.com/en-us/windows/)
 [![Self-Contained](https://img.shields.io/badge/Deployment-Self--Contained-purple?style=for-the-badge)](#-deployment)
-[![Version](https://img.shields.io/badge/version-v1.2.1-blue?style=for-the-badge)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/v1.2.1)
 
 ---
 
