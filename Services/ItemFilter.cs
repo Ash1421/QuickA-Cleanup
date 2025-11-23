@@ -41,7 +41,13 @@ public static class ItemFilter
         "Notepad",
         "Docker Containers",
         "Archives",
-        "Workspaces"
+        "Workspaces",
+        "Notes",
+        "Projects",
+        "Moives",
+        "Anime",
+        "Games",
+        "Maps"
     };
 
     /// <summary>

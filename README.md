@@ -9,10 +9,10 @@
 
 ## Badges and Repository information
 
-[![Version](https://img.shields.io/badge/version-v1.2.1-blue?style=for-the-badge)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/V1.2.1)
 [![.NET](https://img.shields.io/badge/Built%20With-.NET%208/9-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20Only-blue?style=for-the-badge&logo=windows)](https://learn.microsoft.com/en-us/windows/)
 [![Self-Contained](https://img.shields.io/badge/Deployment-Self--Contained-purple?style=for-the-badge)](#-deployment)
+[![Version](https://img.shields.io/badge/version-v1.3.2-green?style=for-the-badge)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/v1.3.2)
 
 ---
 
@@ -33,6 +33,13 @@
 
 ---
 
+## ⚙️ Infomation and useage
+
+The built app supports commas for seperating multiple Quick Access entries and deletes them all at once, it also supports thredding and has remove all entries that have been found and quit options as well as restarting explorer after cleaing up to make sure there are no bugs, the program will scan the registry and show the number to use to delete the entry, the guid and the name of the entry will be shown.
+
+if you would like to test this use the testing .reg file that is provided with this repository, the file can be found here: [testpins.reg](https://github.com/Ash1421/QuickA-Cleanup/blob/main/testpins.reg)
+
+---
 ## 🛠️ Requirements
 
 - ✅ Windows 7, 10, 11 (x64 or ARM64)
@@ -109,20 +116,27 @@ Read full license [here](https://www.gnu.org/licenses/gpl-3.0).
 
 ---
 
-## 👤 Author
-
-**Ash1421**
-
-- GitHub: [@Ash1421](https://github.com/Ash1421)
-
----
-
 ## 📝 Notes
 
 - You’re free to rename the executable after build (`QuickA-Cleanup.exe` ➝ `QuickAccessCleaner.exe`, etc.)
 - For x86 or ARM64 builds, adjust the `-r` flag accordingly:
   - `-r win-x86`
   - `-r win-arm64`
+
+---
+
+<h2 align="center">
+💫 Star History
+</h2>
+
+<a href="https://www.star-history.com/#Ash1421/QuickA-Cleanup&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Ash1421/QuickA-Cleanup&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Ash1421/QuickA-Cleanup&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Ash1421/QuickA-Cleanup&type=date&legend=top-left" />
+ </picture>
+ 
+</a>
 
 ---
 

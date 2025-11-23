@@ -1,0 +1,25 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0001-0000-0000-0000-000000000001}]
+@="TEST_PIN_Alpha"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0002-0000-0000-0000-000000000002}]
+@="TEST_PIN_Beta"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0003-0000-0000-0000-000000000003}]
+@="TEST_PIN_Gamma"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0004-0000-0000-0000-000000000004}]
+@="TEST_PIN_Delta"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0005-0000-0000-0000-000000000005}]
+@="TEST_PIN_Epsilon"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0006-0000-0000-0000-000000000006}]
+@="TEST_PIN_Zeta"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0007-0000-0000-0000-000000000007}]
+@="TEST_PIN_Eta"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{TEST0008-0000-0000-0000-000000000008}]
+@="TEST_PIN_Theta"
