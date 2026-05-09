@@ -10,7 +10,7 @@ on:
 
 jobs:
   release:
-    name: Build & Release QuickA-Cleanup
+    name: Build & Release
     runs-on: windows-latest
     permissions:
       contents: write
@@ -133,7 +133,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.version.outputs.VERSION }}
-          name: "QuickA-Cleanup ${{ steps.version.outputs.VERSION }}"
+          name: "QuickA-Cleanup"
           body: |
             ## QuickA-Cleanup ${{ steps.version.outputs.VERSION }}
             Smart Quick Access Navigation Pane cleaner for Windows Explorer.
