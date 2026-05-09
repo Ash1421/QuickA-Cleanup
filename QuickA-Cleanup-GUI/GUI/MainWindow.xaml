@@ -1,0 +1,432 @@
+<Window x:Class="QuickA_Cleanup.GUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="QuickA-Cleanup"
+        Height="620" Width="860"
+        MinHeight="520" MinWidth="720"
+        WindowStartupLocation="CenterScreen"
+        Background="#0D0D0F"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="BgPrimary"     Color="#0D0D0F"/>
+        <SolidColorBrush x:Key="BgSurface"     Color="#151519"/>
+        <SolidColorBrush x:Key="BgCard"        Color="#1C1C22"/>
+        <SolidColorBrush x:Key="AccentPurple"  Color="#7C3AED"/>
+        <SolidColorBrush x:Key="AccentRed"     Color="#EF4444"/>
+        <SolidColorBrush x:Key="AccentAmber"   Color="#F59E0B"/>
+        <SolidColorBrush x:Key="AccentYellow"  Color="#EAB308"/>
+        <SolidColorBrush x:Key="AccentGreen"   Color="#10B981"/>
+        <SolidColorBrush x:Key="TextPrimary"   Color="#F1F1F3"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#8B8B9E"/>
+        <SolidColorBrush x:Key="BorderSubtle"  Color="#2A2A35"/>
+
+        <!-- Pulse animation: ease-out opacity 1→0.25→1 -->
+        <Storyboard x:Key="PulseDot" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="1" To="0.2" Duration="0:0:1.2"
+                             AutoReverse="True">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+
+        <Style x:Key="ModernCheckBox" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="Box" Width="18" Height="18" CornerRadius="4"
+                                    Background="{StaticResource BgCard}"
+                                    BorderBrush="{StaticResource BorderSubtle}"
+                                    BorderThickness="1.5" Margin="0,0,8,0">
+                                <TextBlock x:Name="Check" Text="✓" FontSize="11" FontWeight="Bold"
+                                           Foreground="{StaticResource AccentPurple}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Box"   Property="BorderBrush" Value="{StaticResource AccentPurple}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource AccentPurple}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FlatButton" TargetType="Button">
+            <Setter Property="FontFamily"      Value="Segoe UI"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"         Value="18,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="8"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Border CornerRadius="3" Background="#3A3A4E" Margin="1"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border CornerRadius="12" Background="{StaticResource BgPrimary}"
+            BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1"
+            Margin="4,4,4,4">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ── Title bar ──────────────────────────────────────────────── -->
+            <Border Grid.Row="0" CornerRadius="12,12,0,0"
+                    Background="{StaticResource BgSurface}"
+                    MouseDown="TitleBar_MouseDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                        <!-- App icon dot -->
+                        <Ellipse Width="10" Height="10" Fill="{StaticResource AccentPurple}"
+                                 Margin="0,0,6,0"/>
+                        <TextBlock Text="QuickA-Cleanup"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="#2A2A35" CornerRadius="4" Padding="6,2" Margin="10,0,0,0">
+                            <TextBlock x:Name="VersionBadge" Text="v2.0.0"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                        </Border>
+
+                        <!-- Bloat dot — always visible, green=clean amber=bloat found -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                            <Ellipse x:Name="DotBloat" Width="7" Height="7"
+                                     Fill="{StaticResource AccentGreen}"
+                                     VerticalAlignment="Center" ToolTip="Bloat: clean"/>
+                            <TextBlock x:Name="LblBloat" Text="Bloat"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontFamily="Segoe UI" FontSize="10"
+                                       VerticalAlignment="Center" Margin="4,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- Testpin dot — hidden when none installed, yellow+pulsing when installed -->
+                        <StackPanel x:Name="DotTestpinGroup"
+                                    Orientation="Horizontal" VerticalAlignment="Center"
+                                    Margin="10,0,0,0" Visibility="Collapsed">
+                            <Ellipse x:Name="DotTestpin" Width="7" Height="7"
+                                     Fill="{StaticResource AccentYellow}"
+                                     VerticalAlignment="Center" ToolTip="Test entries installed"/>
+                            <TextBlock Text="Test pins"
+                                       Foreground="{StaticResource AccentYellow}"
+                                       FontFamily="Segoe UI" FontSize="10"
+                                       VerticalAlignment="Center" Margin="4,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- Error dot — always visible, green=no errors red=errors -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <Ellipse x:Name="DotError" Width="7" Height="7"
+                                     Fill="{StaticResource AccentGreen}"
+                                     VerticalAlignment="Center" ToolTip="Errors: none"/>
+                            <TextBlock x:Name="LblError" Text="Errors"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontFamily="Segoe UI" FontSize="10"
+                                       VerticalAlignment="Center" Margin="4,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                VerticalAlignment="Center" Margin="0,0,12,0">
+                        <Button Content="⚙" Click="BtnSettings_Click" Width="32" Height="28"
+                                Background="Transparent" Foreground="{StaticResource TextSecondary}"
+                                FontFamily="Segoe UI" FontSize="15" BorderThickness="0" Cursor="Hand"
+                                ToolTip="Settings"/>
+                        <Button Content="─" Click="BtnMinimize_Click" Width="32" Height="28"
+                                Background="Transparent" Foreground="{StaticResource TextSecondary}"
+                                FontFamily="Segoe UI" FontSize="14" BorderThickness="0" Cursor="Hand"/>
+                        <Button Content="✕" Click="BtnClose_Click" Width="32" Height="28"
+                                Background="Transparent" Foreground="{StaticResource TextSecondary}"
+                                FontFamily="Segoe UI" FontSize="13" BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── Scan bar ────────────────────────────────────────────────── -->
+            <Border Grid.Row="1" Background="{StaticResource BgSurface}"
+                    BorderBrush="{StaticResource BorderSubtle}" BorderThickness="0,0,0,1"
+                    Padding="20,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="Quick Access Navigation Pane"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="TxtStatus" Text="Ready — click Scan to begin."
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontFamily="Segoe UI" FontSize="12" Margin="0,3,0,0"/>
+
+                        <!-- Progress bar — shown during scan/remove -->
+                        <Grid Margin="0,6,0,0">
+                            <ProgressBar x:Name="ScanProgressBar"
+                                         Minimum="0" Maximum="100" Value="0"
+                                         Height="3" Width="220"
+                                         HorizontalAlignment="Left"
+                                         Background="#2A2A35"
+                                         Foreground="{StaticResource AccentPurple}"
+                                         BorderThickness="0"
+                                         Visibility="Collapsed"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox x:Name="ChkDryRun" Content="Dry Run"
+                                  Style="{StaticResource ModernCheckBox}"
+                                  Foreground="{StaticResource TextSecondary}"
+                                  ToolTip="Preview removals without touching the registry"
+                                  Margin="0,0,16,0"/>
+                        <CheckBox x:Name="ChkBackup" Content="Backup" IsChecked="True"
+                                  Style="{StaticResource ModernCheckBox}"
+                                  Foreground="{StaticResource TextSecondary}"
+                                  ToolTip="Save a .reg backup file before removing"
+                                  Margin="0,0,16,0"/>
+                        <Button x:Name="BtnScan" Content="⟳  Scan" Click="BtnScan_Click"
+                                Style="{StaticResource FlatButton}"
+                                Background="{StaticResource AccentPurple}"
+                                Foreground="White"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── Item list ──────────────────────────────────────────────── -->
+            <Grid Grid.Row="2" Margin="20,16,20,8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Column headers -->
+                <Grid Grid.Row="0" Margin="0,0,0,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="280"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="1" Text="NAME"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
+                               Margin="16,0,0,0"/>
+                    <TextBlock Grid.Column="2" Text="GUID"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="3" Text="TYPE"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"/>
+                </Grid>
+
+                <Border Grid.Row="1" CornerRadius="10" Background="{StaticResource BgSurface}"
+                        BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled" Padding="0,4">
+                        <ItemsControl x:Name="ItemsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Row with optional left accent bar for bloatware/testpin -->
+                                    <Border x:Name="Row"
+                                            CornerRadius="6" Margin="6,2"
+                                            Padding="0,0,10,0"
+                                            Background="Transparent"
+                                            Opacity="{Binding RowOpacity}"
+                                            Cursor="Hand"
+                                            MouseEnter="Row_MouseEnter"
+                                            MouseLeave="Row_MouseLeave">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <!-- Accent bar -->
+                                                <ColumnDefinition Width="3"/>
+                                                <!-- Content -->
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Left accent bar -->
+                                            <Border Grid.Column="0"
+                                                    CornerRadius="3,0,0,3"
+                                                    Background="{Binding RowAccent}"
+                                                    Margin="0,3,0,3"/>
+
+                                            <!-- Row content -->
+                                            <Grid Grid.Column="1" Margin="10,8,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="32"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="280"/>
+                                                    <ColumnDefinition Width="100"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <CheckBox Grid.Column="0"
+                                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          Style="{StaticResource ModernCheckBox}"
+                                                          VerticalAlignment="Center"/>
+
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding Name}"
+                                                           Foreground="{StaticResource TextPrimary}"
+                                                           FontFamily="Segoe UI" FontSize="13"
+                                                           FontWeight="Medium"
+                                                           VerticalAlignment="Center"
+                                                           Margin="4,0,0,0"
+                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding Guid}"
+                                                           Foreground="{StaticResource TextSecondary}"
+                                                           FontFamily="Cascadia Code, Consolas"
+                                                           FontSize="11"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                <Border Grid.Column="3" CornerRadius="4" Padding="8,3"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{Binding TagBackground}">
+                                                    <TextBlock Text="{Binding TagLabel}"
+                                                               Foreground="{Binding TagForeground}"
+                                                               FontFamily="Segoe UI" FontSize="11"
+                                                               FontWeight="SemiBold"/>
+                                                </Border>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter TargetName="Row" Property="Background" Value="#1E1B2E"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+
+                <StackPanel x:Name="EmptyState" Grid.Row="1"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="Visible">
+                    <TextBlock Text="🔍" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                    <TextBlock Text="Click Scan to find Quick Access items"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontFamily="Segoe UI" FontSize="14"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ── Footer ─────────────────────────────────────────────────── -->
+            <Border Grid.Row="3" Background="{StaticResource BgSurface}"
+                    BorderBrush="{StaticResource BorderSubtle}" BorderThickness="0,1,0,0"
+                    CornerRadius="0,0,12,12" Padding="20,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="Select All" Click="BtnSelectAll_Click"
+                                Style="{StaticResource FlatButton}"
+                                Background="{StaticResource BgCard}"
+                                Foreground="{StaticResource TextSecondary}"
+                                Padding="12,7" Margin="0,0,8,0"/>
+                        <Button Content="Deselect All" Click="BtnDeselectAll_Click"
+                                Style="{StaticResource FlatButton}"
+                                Background="{StaticResource BgCard}"
+                                Foreground="{StaticResource TextSecondary}"
+                                Padding="12,7"/>
+                        <TextBlock x:Name="TxtSelectionCount" Text="0 selected"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontFamily="Segoe UI" FontSize="12"
+                                   VerticalAlignment="Center" Margin="16,0,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" x:Name="BtnRemove"
+                            Content="Remove Selected" Click="BtnRemove_Click"
+                            Style="{StaticResource FlatButton}"
+                            Background="{StaticResource AccentRed}"
+                            Foreground="White" IsEnabled="False"/>
+                </Grid>
+            </Border>
+
+            <!-- ── Progress overlay ───────────────────────────────────────── -->
+            <Grid x:Name="ProgressOverlay" Grid.RowSpan="4"
+                  Background="#AA0D0D0F" Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtProgress" Text="Working..."
+                               Foreground="{StaticResource TextPrimary}"
+                               FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TxtProgressSub" Text=""
+                               Foreground="{StaticResource TextSecondary}"
+                               FontFamily="Segoe UI" FontSize="12"
+                               HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                    <ProgressBar x:Name="OverlayProgressBar"
+                                 IsIndeterminate="True"
+                                 Width="220" Height="4" Margin="0,14,0,0"
+                                 Background="{StaticResource BgCard}"
+                                 Foreground="{StaticResource AccentPurple}"
+                                 BorderThickness="0"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

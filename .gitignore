@@ -1,0 +1,25 @@
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+.vs/
+
+# Log and backup files generated at runtime
+*.log
+QuickA-Backup-*.reg
+
+# Rider / JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# NuGet
+*.nupkg
+packages/

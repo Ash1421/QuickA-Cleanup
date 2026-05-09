@@ -1,0 +1,167 @@
+name: Automated Release
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    name: Build & Release QuickA-Cleanup
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # ── Commit message ────────────────────────────────────────────────────
+      - name: Get latest commit message
+        id: commit
+        shell: bash
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
+      # ── Skip dev/test commits ─────────────────────────────────────────────
+      - name: Skip dev/testing commits
+        if: |
+          contains(steps.commit.outputs.commit_msg, 'Testing') ||
+          contains(steps.commit.outputs.commit_msg, 'Dev')     ||
+          contains(steps.commit.outputs.commit_msg, 'Development')
+        shell: bash
+        run: |
+          echo "Commit marked Testing/Dev/Development — skipping release."
+          exit 0
+
+      # ── Extract version ───────────────────────────────────────────────────
+      - name: Extract version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(echo '${{ steps.commit.outputs.commit_msg }}' | grep -o 'V[0-9]\+\.[0-9]\+\.[0-9]\+')
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check version found
+        shell: bash
+        run: |
+          if [ -z "${{ steps.version.outputs.VERSION }}" ]; then
+            echo "No version found in commit message — skipping release."
+            exit 0
+          fi
+
+      # ── Inject version into both .csproj files ────────────────────────────
+      - name: Set version in .csproj files
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.version.outputs.VERSION }}" -replace '^V',''
+          foreach ($path in @('Core\Core.csproj', 'QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj', 'QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj')) {
+            $content = Get-Content $path -Raw
+            $content = $content -replace '<Version>.*?</Version>', "<Version>$ver</Version>"
+            Set-Content $path $content
+            Write-Host "Set <Version> to $ver in $path"
+          }
+
+      # ── Setup .NET ────────────────────────────────────────────────────────
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # ── Build GUI — all three targets ─────────────────────────────────────
+      - name: Build GUI win-x64
+        shell: pwsh
+        run: |
+          dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj `
+            -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true -o publish/gui/win-x64
+
+      - name: Build GUI win-x86
+        shell: pwsh
+        run: |
+          dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj `
+            -c Release -r win-x86 --self-contained true `
+            -p:PublishSingleFile=true -o publish/gui/win-x86
+
+      - name: Build GUI win-arm64
+        shell: pwsh
+        run: |
+          dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj `
+            -c Release -r win-arm64 --self-contained true `
+            -p:PublishSingleFile=true -o publish/gui/win-arm64
+
+      # ── Build CLI — all three targets ─────────────────────────────────────
+      - name: Build CLI win-x64
+        shell: pwsh
+        run: |
+          dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj `
+            -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/cli/win-x64
+
+      - name: Build CLI win-x86
+        shell: pwsh
+        run: |
+          dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj `
+            -c Release -r win-x86 --self-contained true `
+            -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/cli/win-x86
+
+      - name: Build CLI win-arm64
+        shell: pwsh
+        run: |
+          dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj `
+            -c Release -r win-arm64 --self-contained true `
+            -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/cli/win-arm64
+
+      # ── Rename all binaries ───────────────────────────────────────────────
+      - name: Rename binaries
+        shell: pwsh
+        run: |
+          $v = "${{ steps.version.outputs.VERSION }}"
+          Copy-Item publish/gui/win-x64/QuickA-Cleanup-GUI.exe   "QuickA-Cleanup-GUI-${v}-win-x64.exe"
+          Copy-Item publish/gui/win-x86/QuickA-Cleanup-GUI.exe   "QuickA-Cleanup-GUI-${v}-win-x86.exe"
+          Copy-Item publish/gui/win-arm64/QuickA-Cleanup-GUI.exe "QuickA-Cleanup-GUI-${v}-win-arm64.exe"
+          Copy-Item publish/cli/win-x64/QuickA-Cleanup-CLI.exe   "QuickA-Cleanup-CLI-${v}-win-x64.exe"
+          Copy-Item publish/cli/win-x86/QuickA-Cleanup-CLI.exe   "QuickA-Cleanup-CLI-${v}-win-x86.exe"
+          Copy-Item publish/cli/win-arm64/QuickA-Cleanup-CLI.exe "QuickA-Cleanup-CLI-${v}-win-arm64.exe"
+
+      # ── Create GitHub Release ─────────────────────────────────────────────
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.version.outputs.VERSION }}
+          name: "QuickA-Cleanup ${{ steps.version.outputs.VERSION }}"
+          body: |
+            ## QuickA-Cleanup ${{ steps.version.outputs.VERSION }}
+            Smart Quick Access Navigation Pane cleaner for Windows Explorer.
+
+            ---
+
+            ## ✨ Socials & Stars
+            [![Discord](https://img.shields.io/badge/Discord-Server%20Invite-7289DA?style=for-the-badge&logo=discord&logoColor=white&labelColor=1c1917&color=blueviolet)](https://discord.gg/xc4D33wBmA)
+            [![GitHub Stars](https://img.shields.io/github/stars/Ash1421/QuickA-Cleanup?style=for-the-badge&logo=github&logoColor=white&labelColor=1c1917&color=gold)](https://github.com/Ash1421/QuickA-Cleanup/stargazers)
+
+            ## 📦 Repository Info
+            [![Version](https://img.shields.io/badge/Version-${{ steps.version.outputs.VERSION }}-6829B1?style=for-the-badge&label=Version&logo=github&logoColor=white&labelColor=1c1917)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/${{ steps.version.outputs.VERSION }})
+            [![Latest Release](https://img.shields.io/github/v/release/Ash1421/QuickA-Cleanup?style=for-the-badge&label=Latest%20Version&logo=github&logoColor=white&labelColor=1c1917&color=6829B1)](https://github.com/Ash1421/QuickA-Cleanup/releases/latest)
+            [![CodeFactor](https://img.shields.io/codefactor/grade/github/ash1421/QuickA-Cleanup?style=for-the-badge&logo=codefactor&logoColor=white&labelColor=1c1917&color=6829B1)](https://www.codefactor.io/repository/github/ash1421/QuickA-Cleanup)
+            [![Total Downloads](https://img.shields.io/github/downloads/Ash1421/QuickA-Cleanup/total?style=for-the-badge&logo=github&logoColor=white&labelColor=1c1917&color=6829B1&label=Total%20Downloads)](https://github.com/Ash1421/QuickA-Cleanup/releases)
+            [![Downloads @ Latest](https://img.shields.io/github/downloads/Ash1421/QuickA-Cleanup/latest/total?style=for-the-badge&logo=github&logoColor=white&labelColor=1c1917&color=6829B1&label=Downloads%20%40%20Latest)](https://github.com/Ash1421/QuickA-Cleanup/releases/latest)
+            [![Open Issues](https://img.shields.io/github/issues/Ash1421/QuickA-Cleanup/open?style=for-the-badge&labelColor=1c1917&logo=github&logoColor=white)](https://github.com/Ash1421/QuickA-Cleanup/issues)
+            [![Closed Issues](https://img.shields.io/github/issues-closed/Ash1421/QuickA-Cleanup/closed?style=for-the-badge&color=red&labelColor=1c1917&logo=github&logoColor=white)](https://github.com/Ash1421/QuickA-Cleanup/issues?q=is:closed)
+            [![New Issue](https://img.shields.io/badge/Open%20A%20New-Issue-orange?style=for-the-badge&labelColor=1c1917&logo=github&logoColor=white)](https://github.com/Ash1421/QuickA-Cleanup/issues/new)
+
+            ## 📜 License
+            [![License: GPL v3.0](https://img.shields.io/badge/License-GPL%20v3.0-6829B1.svg?style=for-the-badge&labelColor=1c1917&logo=gnu&logoColor=white)](./LICENSE)
+
+          artifacts: |
+            QuickA-Cleanup-GUI-${{ steps.version.outputs.VERSION }}-win-x64.exe
+            QuickA-Cleanup-GUI-${{ steps.version.outputs.VERSION }}-win-x86.exe
+            QuickA-Cleanup-GUI-${{ steps.version.outputs.VERSION }}-win-arm64.exe
+            QuickA-Cleanup-CLI-${{ steps.version.outputs.VERSION }}-win-x64.exe
+            QuickA-Cleanup-CLI-${{ steps.version.outputs.VERSION }}-win-x86.exe
+            QuickA-Cleanup-CLI-${{ steps.version.outputs.VERSION }}-win-arm64.exe
+          makeLatest: true
