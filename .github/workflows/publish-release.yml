@@ -70,51 +70,90 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
       # ── Build GUI — all three targets ─────────────────────────────────────
       - name: Build GUI win-x64
         shell: pwsh
         run: |
           dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj `
-            -c Release -r win-x64 --self-contained true `
-            -p:PublishSingleFile=true -o publish/gui/win-x64
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o publish/gui/win-x64
 
       - name: Build GUI win-x86
         shell: pwsh
         run: |
           dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj `
-            -c Release -r win-x86 --self-contained true `
-            -p:PublishSingleFile=true -o publish/gui/win-x86
+            -c Release `
+            -r win-x86 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o publish/gui/win-x86
 
       - name: Build GUI win-arm64
         shell: pwsh
         run: |
           dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj `
-            -c Release -r win-arm64 --self-contained true `
-            -p:PublishSingleFile=true -o publish/gui/win-arm64
+            -c Release `
+            -r win-arm64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o publish/gui/win-arm64
 
       # ── Build CLI — all three targets ─────────────────────────────────────
       - name: Build CLI win-x64
         shell: pwsh
         run: |
           dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj `
-            -c Release -r win-x64 --self-contained true `
-            -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/cli/win-x64
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:PublishTrimmed=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o publish/cli/win-x64
 
       - name: Build CLI win-x86
         shell: pwsh
         run: |
           dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj `
-            -c Release -r win-x86 --self-contained true `
-            -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/cli/win-x86
+            -c Release `
+            -r win-x86 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:PublishTrimmed=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o publish/cli/win-x86
 
       - name: Build CLI win-arm64
         shell: pwsh
         run: |
           dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj `
-            -c Release -r win-arm64 --self-contained true `
-            -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/cli/win-arm64
+            -c Release `
+            -r win-arm64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:PublishTrimmed=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o publish/cli/win-arm64
 
       # ── Rename all binaries ───────────────────────────────────────────────
       - name: Rename binaries
@@ -141,7 +180,7 @@ jobs:
             ---
 
             ## ✨ Socials & Stars
-            [![Discord](https://img.shields.io/badge/Discord-Server%20Invite-7289DA?style=for-the-badge&logo=discord&logoColor=white&labelColor=1c1917&color=blueviolet)](https://discord.gg/xc4D33wBmA)
+            [![Discord](https://img.shields.io/badge/Discord-Server%20Invite-7289DA?style=for-the-badge&logo=discord&logoColor=white&labelColor=1c1917&color=blueviolet)](https://rb.ash1421.com/discord)
             [![GitHub Stars](https://img.shields.io/github/stars/Ash1421/QuickA-Cleanup?style=for-the-badge&logo=github&logoColor=white&labelColor=1c1917&color=gold)](https://github.com/Ash1421/QuickA-Cleanup/stargazers)
 
             ## 📦 Repository Info

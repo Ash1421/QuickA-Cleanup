@@ -258,12 +258,12 @@ Requires [.NET SDK 9.0](https://dotnet.microsoft.com/en-us/download).
 
 **GUI — win-x64:**
 ```bash
-dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false
 ```
 
 **CLI — win-x64:**
 ```bash
-dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true
+dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true -p:DebugType=None -p:DebugSymbols=false
 ```
 
 Replace `-r win-x64` with `-r win-x86` or `-r win-arm64` for other targets.

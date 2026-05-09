@@ -7,7 +7,7 @@
     <AssemblyName>QuickA-Cleanup-GUI</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
     <Authors>Ash1421</Authors>
     <Copyright>Copyright (c) 2026 Ash1421</Copyright>
     <ApplicationManifest>app.manifest</ApplicationManifest>

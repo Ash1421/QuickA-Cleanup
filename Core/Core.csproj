@@ -5,7 +5,7 @@
     <RootNamespace>QuickA_Cleanup.Core</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
     <Authors>Ash1421</Authors>
     <Copyright>Copyright (c) 2026 Ash1421</Copyright>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
