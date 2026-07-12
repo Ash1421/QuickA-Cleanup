@@ -5,7 +5,6 @@ namespace QuickA_Cleanup.CLI;
 
 class Program
 {
-
     static void Main(string[] args)
     {
         Console.Title = "QuickA-Cleanup CLI";
