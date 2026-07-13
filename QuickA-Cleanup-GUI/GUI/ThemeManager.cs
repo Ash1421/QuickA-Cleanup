@@ -223,7 +223,7 @@ public static class ThemeManager
         byte target = amount >= 0 ? (byte)255 : (byte)0;
         double t = Math.Abs(amount);
 
-        byte Mix(byte channel) => (byte)Math.Clamp(channel + (target - channel) * t, 0, 255);
+        byte Mix(byte channel) => (byte)Math.Clamp(channel + ((target - channel) * t), 0, 255);
 
         return Color.FromArgb(255, Mix(c.R), Mix(c.G), Mix(c.B));
     }
