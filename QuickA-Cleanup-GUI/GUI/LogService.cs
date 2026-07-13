@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using Microsoft.UI;
+using Microsoft.UI.Xaml.Media;
+using Windows.UI;
 
 namespace QuickA_Cleanup.GUI;
 
@@ -20,23 +23,23 @@ public class LogEntry
         _              => "     "
     };
 
-    public string Formatted =>
-        $"[{Timestamp:HH:mm:ss}] [{LevelLabel}] {Message}";
+    public string Formatted => $"[{Timestamp:HH:mm:ss}] [{LevelLabel}] {Message}";
 
-    public System.Windows.Media.Brush LevelColour => Level switch
+    public Brush LevelColour => Level switch
     {
-        LogLevel.Trace => new System.Windows.Media.SolidColorBrush(
-                              System.Windows.Media.Color.FromRgb(0x8B, 0x8B, 0x9E)),
-        LogLevel.Dev   => new System.Windows.Media.SolidColorBrush(
-                              System.Windows.Media.Color.FromRgb(0x06, 0xB6, 0xD4)),
-        LogLevel.Warn  => new System.Windows.Media.SolidColorBrush(
-                              System.Windows.Media.Color.FromRgb(0xF5, 0x9E, 0x0B)),
-        LogLevel.Error => new System.Windows.Media.SolidColorBrush(
-                              System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44)),
-        _              => System.Windows.Media.Brushes.White
+        LogLevel.Trace => new SolidColorBrush(Color.FromArgb(255, 0x8B, 0x8B, 0x9E)),
+        LogLevel.Dev   => new SolidColorBrush(Color.FromArgb(255, 0x06, 0xB6, 0xD4)),
+        LogLevel.Warn  => new SolidColorBrush(Color.FromArgb(255, 0xF5, 0x9E, 0x0B)),
+        LogLevel.Error => new SolidColorBrush(Color.FromArgb(255, 0xEF, 0x44, 0x44)),
+        _              => new SolidColorBrush(Colors.White)
     };
 }
 
+/// <summary>
+/// Simple in-memory + on-disk log used by the Settings log viewer. Marshals
+/// UI-bound collection changes onto the main window's DispatcherQueue so it
+/// can safely be called from background scan/removal work.
+/// </summary>
 public class LogService
 {
     private static LogService? _instance;
@@ -47,6 +50,7 @@ public class LogService
 
     public ObservableCollection<LogEntry> Entries { get; } = new();
     public LogLevel MinLevel { get; set; } = LogLevel.Trace;
+    public string LogFilePath => _logPath;
 
     private LogService()
     {
@@ -57,8 +61,10 @@ public class LogService
     {
         var entry = new LogEntry { Level = level, Message = message };
 
-        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
-            Entries.Add(entry));
+        if (App.MainWin?.DispatcherQueue is { } dispatcher)
+            dispatcher.TryEnqueue(() => Entries.Add(entry));
+        else
+            Entries.Add(entry);
 
         lock (_lock)
         {
@@ -72,9 +78,13 @@ public class LogService
     public void Warn(string m)  => Log(LogLevel.Warn,  m);
     public void Error(string m) => Log(LogLevel.Error, m);
 
-    public IEnumerable<LogEntry> Filtered =>
-        Entries.Where(e => e.Level >= MinLevel);
+    public IEnumerable<LogEntry> Filtered => Entries.Where(e => e.Level >= MinLevel);
 
-    public void Clear() =>
-        System.Windows.Application.Current?.Dispatcher.Invoke(() => Entries.Clear());
+    public void Clear()
+    {
+        if (App.MainWin?.DispatcherQueue is { } dispatcher)
+            dispatcher.TryEnqueue(() => Entries.Clear());
+        else
+            Entries.Clear();
+    }
 }

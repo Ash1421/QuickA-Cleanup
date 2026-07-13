@@ -9,8 +9,49 @@ on:
       - main
 
 jobs:
+  # ── Decide whether this push should trigger a release ──────────────────────
+  # A step's own exit code does NOT skip later steps in the same job — only an
+  # `if:` on those later steps (or a job-level `if:`) does. This job exists so
+  # the entire build/release job can be gated with one job-level `if:` instead.
+  gate:
+    name: Check commit message
+    runs-on: windows-latest
+    outputs:
+      should_release: ${{ steps.decide.outputs.should_release }}
+      version: ${{ steps.decide.outputs.version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Decide whether to release
+        id: decide
+        shell: bash
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MSG"
+
+          if echo "$COMMIT_MSG" | grep -qiE 'testing|dev|development'; then
+            echo "Commit marked Testing/Dev/Development — skipping release."
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          VERSION=$(echo "$COMMIT_MSG" | grep -o 'V[0-9]\+\.[0-9]\+\.[0-9]\+' || true)
+          if [ -z "$VERSION" ]; then
+            echo "No version found in commit message — skipping release."
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Releasing $VERSION"
+          echo "should_release=true" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  # ── Build and publish, only when the gate says so ───────────────────────────
   release:
     name: Build & Release
+    needs: gate
+    if: needs.gate.outputs.should_release == 'true'
     runs-on: windows-latest
     permissions:
       contents: write
@@ -19,46 +60,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # ── Commit message ────────────────────────────────────────────────────
-      - name: Get latest commit message
-        id: commit
-        shell: bash
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
-
-      # ── Skip dev/test commits ─────────────────────────────────────────────
-      - name: Skip dev/testing commits
-        if: |
-          contains(steps.commit.outputs.commit_msg, 'Testing') ||
-          contains(steps.commit.outputs.commit_msg, 'Dev')     ||
-          contains(steps.commit.outputs.commit_msg, 'Development')
-        shell: bash
-        run: |
-          echo "Commit marked Testing/Dev/Development — skipping release."
-          exit 0
-
-      # ── Extract version ───────────────────────────────────────────────────
-      - name: Extract version
-        id: version
-        shell: bash
-        run: |
-          VERSION=$(echo '${{ steps.commit.outputs.commit_msg }}' | grep -o 'V[0-9]\+\.[0-9]\+\.[0-9]\+')
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Check version found
-        shell: bash
-        run: |
-          if [ -z "${{ steps.version.outputs.VERSION }}" ]; then
-            echo "No version found in commit message — skipping release."
-            exit 0
-          fi
-
-      # ── Inject version into both .csproj files ────────────────────────────
+      # ── Inject version into all three .csproj files ───────────────────────
       - name: Set version in .csproj files
         shell: pwsh
         run: |
-          $ver = "${{ steps.version.outputs.VERSION }}" -replace '^V',''
+          $ver = "${{ needs.gate.outputs.version }}" -replace '^V',''
           foreach ($path in @('Core\Core.csproj', 'QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj', 'QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj')) {
             $content = Get-Content $path -Raw
             $content = $content -replace '<Version>.*?</Version>', "<Version>$ver</Version>"
@@ -66,13 +72,15 @@ jobs:
             Write-Host "Set <Version> to $ver in $path"
           }
 
-      # ── Setup .NET ────────────────────────────────────────────────────────
+      # ── Setup .NET ──────────────────────────────────────────────────────────
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.x"
 
       # ── Build GUI — all three targets ─────────────────────────────────────
+      # Note: the GUI is now WinUI 3 (Windows App SDK), which does not support
+      # PublishSingleFile — it ships as a self-contained folder, zipped below.
       - name: Build GUI win-x64
         shell: pwsh
         run: |
@@ -80,8 +88,7 @@ jobs:
             -c Release `
             -r win-x64 `
             --self-contained true `
-            -p:PublishSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:WindowsPackageType=None `
             -p:DebugType=None `
             -p:DebugSymbols=false `
             -o publish/gui/win-x64
@@ -93,8 +100,7 @@ jobs:
             -c Release `
             -r win-x86 `
             --self-contained true `
-            -p:PublishSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:WindowsPackageType=None `
             -p:DebugType=None `
             -p:DebugSymbols=false `
             -o publish/gui/win-x86
@@ -106,8 +112,7 @@ jobs:
             -c Release `
             -r win-arm64 `
             --self-contained true `
-            -p:PublishSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:WindowsPackageType=None `
             -p:DebugType=None `
             -p:DebugSymbols=false `
             -o publish/gui/win-arm64
@@ -155,26 +160,30 @@ jobs:
             -p:DebugSymbols=false `
             -o publish/cli/win-arm64
 
-      # ── Rename all binaries ───────────────────────────────────────────────
-      - name: Rename binaries
+      # ── Package binaries ────────────────────────────────────────────────────
+      # GUI (WinUI 3) ships as a zipped self-contained folder per architecture.
+      # CLI stays a single-file .exe per architecture, as before.
+      - name: Package binaries
         shell: pwsh
         run: |
-          $v = "${{ steps.version.outputs.VERSION }}"
-          Copy-Item publish/gui/win-x64/QuickA-Cleanup-GUI.exe   "QuickA-Cleanup-GUI-${v}-win-x64.exe"
-          Copy-Item publish/gui/win-x86/QuickA-Cleanup-GUI.exe   "QuickA-Cleanup-GUI-${v}-win-x86.exe"
-          Copy-Item publish/gui/win-arm64/QuickA-Cleanup-GUI.exe "QuickA-Cleanup-GUI-${v}-win-arm64.exe"
+          $v = "${{ needs.gate.outputs.version }}"
+
+          Compress-Archive -Path publish/gui/win-x64/*   -DestinationPath "QuickA-Cleanup-GUI-${v}-win-x64.zip"
+          Compress-Archive -Path publish/gui/win-x86/*   -DestinationPath "QuickA-Cleanup-GUI-${v}-win-x86.zip"
+          Compress-Archive -Path publish/gui/win-arm64/* -DestinationPath "QuickA-Cleanup-GUI-${v}-win-arm64.zip"
+
           Copy-Item publish/cli/win-x64/QuickA-Cleanup-CLI.exe   "QuickA-Cleanup-CLI-${v}-win-x64.exe"
           Copy-Item publish/cli/win-x86/QuickA-Cleanup-CLI.exe   "QuickA-Cleanup-CLI-${v}-win-x86.exe"
           Copy-Item publish/cli/win-arm64/QuickA-Cleanup-CLI.exe "QuickA-Cleanup-CLI-${v}-win-arm64.exe"
 
-      # ── Create GitHub Release ─────────────────────────────────────────────
+      # ── Create GitHub Release ───────────────────────────────────────────────
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.version.outputs.VERSION }}
+          tag: ${{ needs.gate.outputs.version }}
           name: "QuickA-Cleanup"
           body: |
-            ## QuickA-Cleanup ${{ steps.version.outputs.VERSION }}
+            ## QuickA-Cleanup ${{ needs.gate.outputs.version }}
             Smart Quick Access Navigation Pane cleaner for Windows Explorer.
 
             ---
@@ -184,7 +193,7 @@ jobs:
             [![GitHub Stars](https://img.shields.io/github/stars/Ash1421/QuickA-Cleanup?style=for-the-badge&logo=github&logoColor=white&labelColor=1c1917&color=gold)](https://github.com/Ash1421/QuickA-Cleanup/stargazers)
 
             ## 📦 Repository Info
-            [![Version](https://img.shields.io/badge/Version-${{ steps.version.outputs.VERSION }}-6829B1?style=for-the-badge&label=Version&logo=github&logoColor=white&labelColor=1c1917)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/${{ steps.version.outputs.VERSION }})
+            [![Version](https://img.shields.io/badge/Version-${{ needs.gate.outputs.version }}-6829B1?style=for-the-badge&label=Version&logo=github&logoColor=white&labelColor=1c1917)](https://github.com/Ash1421/QuickA-Cleanup/releases/tag/${{ needs.gate.outputs.version }})
             [![Latest Release](https://img.shields.io/github/v/release/Ash1421/QuickA-Cleanup?style=for-the-badge&label=Latest%20Version&logo=github&logoColor=white&labelColor=1c1917&color=6829B1)](https://github.com/Ash1421/QuickA-Cleanup/releases/latest)
             [![CodeFactor](https://img.shields.io/codefactor/grade/github/ash1421/QuickA-Cleanup?style=for-the-badge&logo=codefactor&logoColor=white&labelColor=1c1917&color=6829B1)](https://www.codefactor.io/repository/github/ash1421/QuickA-Cleanup)
             [![Total Downloads](https://img.shields.io/github/downloads/Ash1421/QuickA-Cleanup/total?style=for-the-badge&logo=github&logoColor=white&labelColor=1c1917&color=6829B1&label=Total%20Downloads)](https://github.com/Ash1421/QuickA-Cleanup/releases)
@@ -197,10 +206,10 @@ jobs:
             [![License: GPL v3.0](https://img.shields.io/badge/License-GPL%20v3.0-6829B1.svg?style=for-the-badge&labelColor=1c1917&logo=gnu&logoColor=white)](./LICENSE)
 
           artifacts: |
-            QuickA-Cleanup-GUI-${{ steps.version.outputs.VERSION }}-win-x64.exe
-            QuickA-Cleanup-GUI-${{ steps.version.outputs.VERSION }}-win-x86.exe
-            QuickA-Cleanup-GUI-${{ steps.version.outputs.VERSION }}-win-arm64.exe
-            QuickA-Cleanup-CLI-${{ steps.version.outputs.VERSION }}-win-x64.exe
-            QuickA-Cleanup-CLI-${{ steps.version.outputs.VERSION }}-win-x86.exe
-            QuickA-Cleanup-CLI-${{ steps.version.outputs.VERSION }}-win-arm64.exe
+            QuickA-Cleanup-GUI-${{ needs.gate.outputs.version }}-win-x64.zip
+            QuickA-Cleanup-GUI-${{ needs.gate.outputs.version }}-win-x86.zip
+            QuickA-Cleanup-GUI-${{ needs.gate.outputs.version }}-win-arm64.zip
+            QuickA-Cleanup-CLI-${{ needs.gate.outputs.version }}-win-x64.exe
+            QuickA-Cleanup-CLI-${{ needs.gate.outputs.version }}-win-x86.exe
+            QuickA-Cleanup-CLI-${{ needs.gate.outputs.version }}-win-arm64.exe
           makeLatest: true

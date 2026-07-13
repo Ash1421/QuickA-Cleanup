@@ -1,6 +1,39 @@
-<Application x:Class="QuickA_Cleanup.GUI.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="GUI/MainWindow.xaml">
-    <Application.Resources/>
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="QuickA_Cleanup.GUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Accent brushes: colour is mutated at runtime by ThemeManager.ApplyAccent
+                 so every control bound to these updates live, without restarting the app. -->
+            <SolidColorBrush x:Key="AccentBrush" Color="#7C3AED"/>
+            <SolidColorBrush x:Key="AccentBrushSubtle" Color="#7C3AED" Opacity="0.14"/>
+            <SolidColorBrush x:Key="AccentForegroundBrush" Color="White"/>
+
+            <!-- These specific keys are what native Fluent controls (CheckBox, RadioButton,
+                 ToggleSwitch, ...) actually bind to for their checked/on-state fill —
+                 overwriting "SystemAccentColor" alone does NOT reach them, because
+                 XamlControlsResources bakes these from the real OS accent the moment it's
+                 merged above. Defining our own copies here, at the root dictionary, shadows
+                 the built-in ones for every control created afterwards. -->
+            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#7C3AED"/>
+            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#7C3AED"/>
+            <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#7C3AED"/>
+
+            <Style x:Key="AccentFilledButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+            </Style>
+
+            <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Background" Value="{ThemeResource SystemFillColorCriticalBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

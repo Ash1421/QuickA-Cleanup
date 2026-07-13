@@ -1,27 +1,50 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>QuickA_Cleanup.GUI</RootNamespace>
     <AssemblyName>QuickA-Cleanup-GUI</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.1.2</Version>
+    <Version>3.0.0</Version>
     <Authors>Ash1421</Authors>
     <Copyright>Copyright (c) 2026 Ash1421</Copyright>
+
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>..\explorercleanicons\explorer_clean_x64x64.ico</ApplicationIcon>
-    <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
-    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <!-- WindowsAppSDKSelfContained requires an explicit RID (only present when
+       publishing, e.g. `dotnet publish -r win-x64`). Scoping it to Release
+       keeps everyday `dotnet build`/`dotnet run` working with no -r flag. -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250401001" />
+    <PackageReference Include="WinUIEx" Version="2.5.1" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
+
+  <!-- Reuses the existing app icon as an in-app image asset (title bar mark, About footer, etc.)
+       without duplicating the file in source control. -->
+  <ItemGroup>
+    <Content Include="..\explorercleanicons\explorer_clean_x64x64.png" Link="Assets\AppIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

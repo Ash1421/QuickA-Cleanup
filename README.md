@@ -23,7 +23,7 @@
 
 [![.NET](https://img.shields.io/badge/Built%20With-.NET%209-512BD4?style=for-the-badge&logo=dotnet&logoColor=white&labelColor=1c1917)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logoColor=white&labelColor=1c1917&logo=C#)](https://learn.microsoft.com/en-us/dotnet/csharp/)
-[![WPF](https://img.shields.io/badge/WPF-UI-512BD4?style=for-the-badge&logo=windows&logoColor=white&labelColor=1c1917)](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/)
+[![WinUI 3](https://img.shields.io/badge/WinUI%203-Windows%20App%20SDK-512BD4?style=for-the-badge&logo=windows&logoColor=white&labelColor=1c1917)](https://learn.microsoft.com/en-us/windows/apps/winui/winui3/)
 [![Windows](https://img.shields.io/badge/Platform-Windows%20Only-0078D4?style=for-the-badge&logo=windows&logoColor=white&labelColor=1c1917)](https://learn.microsoft.com/en-us/windows/)
 [![GNU](https://img.shields.io/badge/GNU-A42E2B?style=for-the-badge&logo=gnu&logoColor=white&labelColor=1c1917)](https://www.gnu.org/)
 [![Shields.io](https://img.shields.io/badge/Shields.io-4C9B3F?style=for-the-badge&logo=shields.io&logoColor=white&labelColor=1c1917)](https://shields.io/)
@@ -51,17 +51,20 @@ When you open **File Explorer**, the left sidebar shows a list of folders — th
 
 Go to the [**Latest Release**](https://github.com/Ash1421/QuickA-Cleanup/releases/latest) and grab the right file for your PC:
 
-| I have a... | GUI | CLI |
-|---|---|---|
-| Normal Windows PC *(most people)* | `QuickA-Cleanup-GUI-VX.X.X-win-x64.exe` | `QuickA-Cleanup-CLI-VX.X.X-win-x64.exe` |
-| Older 32-bit PC | `QuickA-Cleanup-GUI-VX.X.X-win-x86.exe` | `QuickA-Cleanup-CLI-VX.X.X-win-x86.exe` |
-| Windows on ARM | `QuickA-Cleanup-GUI-VX.X.X-win-arm64.exe` | `QuickA-Cleanup-CLI-VX.X.X-win-arm64.exe` |
+| I have a...                       | GUI                                       | CLI                                       |
+| --------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| Normal Windows PC _(most people)_ | `QuickA-Cleanup-GUI-VX.X.X-win-x64.zip`   | `QuickA-Cleanup-CLI-VX.X.X-win-x64.exe`   |
+| Older 32-bit PC                   | `QuickA-Cleanup-GUI-VX.X.X-win-x86.zip`   | `QuickA-Cleanup-CLI-VX.X.X-win-x86.exe`   |
+| Windows on ARM                    | `QuickA-Cleanup-GUI-VX.X.X-win-arm64.zip` | `QuickA-Cleanup-CLI-VX.X.X-win-arm64.exe` |
 
 > **Not sure?** Grab **win-x64** — it works on most Windows PCs. Use the GUI unless you prefer the terminal.
 
 **2. Run it**
 
-Double-click the `.exe`. If Windows shows a SmartScreen warning click **More info → Run anyway**.
+**GUI:** extract the `.zip` to its own folder, then run `QuickA-Cleanup-GUI.exe` inside it (the app needs its supporting files alongside it — don't move just the `.exe` on its own).
+**CLI:** just run the `.exe` directly, no extraction needed.
+
+If Windows shows a SmartScreen warning click **More info → Run anyway**.
 The app will ask for **Administrator** permission — required to read and modify registry entries.
 
 **3. Clean up**
@@ -73,7 +76,7 @@ The app will ask for **Administrator** permission — required to read and modif
 Explorer restarts automatically and the entries will be gone. ✅
 
 > [!NOTE]
-> **Changed your mind?** A backup file named `QuickA-Backup-<timestamp>.reg` is automatically saved next to the `.exe` every time you remove something. Double-click it and click **Yes** to restore everything instantly. You can also create a manual backup anytime via **Settings → Backup**.
+> **Changed your mind?** A backup file named `QuickA-Backup-<timestamp>.reg` is automatically saved next to the app every time you remove something (in the GUI's folder, or next to the `.exe` for CLI). Double-click it and click **Yes** to restore everything instantly.
 
 ---
 
@@ -81,11 +84,11 @@ Explorer restarts automatically and the entries will be gone. ✅
 
 QuickA-Cleanup recognises these common entries and highlights them as **Bloatware** in the item list:
 
-| Name | Added by |
-|---|---|
-| OneDrive — Personal | Microsoft OneDrive |
+| Name                  | Added by                      |
+| --------------------- | ----------------------------- |
+| OneDrive — Personal   | Microsoft OneDrive            |
 | OneDrive for Business | Microsoft 365 / work accounts |
-| SharePoint | Microsoft 365 |
+| SharePoint            | Microsoft 365                 |
 
 Everything else shows as **Unknown** — typically entries left by third-party apps.
 
@@ -129,7 +132,7 @@ The tool restarts Explorer automatically. If something still looks off, restart 
 1. Press `Ctrl + Shift + Esc` → Task Manager
 2. Find **Windows Explorer** → Right-click → **Restart**
 
-To restore removed entries, find the `QuickA-Backup-*.reg` file next to the `.exe`, double-click it, and click **Yes**.
+To restore removed entries, find the `QuickA-Backup-*.reg` file next to the app (in the GUI's folder, or next to the `.exe` for CLI), double-click it, and click **Yes**.
 
 </details>
 
@@ -158,20 +161,23 @@ Use **Settings → Testing** in the GUI — download and install dummy test entr
 <br>
 
 **GUI:**
-- Modern WPF dark-theme window with custom title bar, drag, minimize, close
-- Three always-visible status indicator dots (Bloat / Test pins / Errors) with ease-in-out pulse animation on the testpin dot when entries are detected
-- Item list with subtle amber left-border accent on bloatware rows, green on testpin rows
-- Row fade-out animation on removal
+
+- Native WinUI 3 window — real Windows 11 caption buttons (minimize/maximize/close, snap layouts included), Mica backdrop
+- Light / Dark / "Match Windows" theme, plus a picker of 8 accent colors that apply live across the app
+- Three always-visible status indicator dots (Bloat / Test pins / Errors)
+- Item list with a colored type badge per row (Bloatware / Test / Unknown), native list add/remove animation
 - Progress bar + live sub-text during scan and removal
 - Dry Run and Backup toggles in the scan bar
-- Settings modal — frosted glass overlay centered to the main window
+- Settings is a native dialog (`ContentDialog`), not a separate window
 
-**Settings modal:**
-- Testing section — download + install + remove testpins with live status dot (green/red)
-- Backup section — manual `.reg` backup of all current Quick Access entries
-- Log section — TRACE/DEV/WARN/ERROR level filter, expandable log viewer with error dot, auto-scroll, clear button, writes to `QuickA-Cleanup.log`
+**Settings dialog:**
+
+- Appearance section — theme mode + accent color swatches
+- Testing section — download + install + remove testpins with live status text
+- Log section — TRACE/DEV/WARN/ERROR level filter, expandable log viewer, clear button, writes to `QuickA-Cleanup.log`
 
 **Core:**
+
 - Parallel registry scanning via `Parallel.ForEach` + `ConcurrentBag`
 - Known bloatware tagging (OneDrive, OneDrive for Business, SharePoint)
 - Testpin detection on startup with status bar warning
@@ -182,6 +188,7 @@ Use **Settings → Testing** in the GUI — download and install dummy test entr
 - Custom app icon (`explorer_clean_x64x64.ico`)
 
 **CLI:**
+
 - Same scan/remove/backup/dry-run/restore logic as GUI
 - `--dry-run`, `--no-backup`, `--help` flags
 - Color-coded table output with bloatware tagging
@@ -214,6 +221,7 @@ Explorer is restarted by calling `Process.Kill()` on all `explorer.exe` instance
 All filtering logic lives in `Core/Services/ItemFilter.cs`.
 
 **Add a GUID to the protected blacklist** (never shown, never removable):
+
 ```csharp
 private static readonly HashSet<string> Blacklist =
     new(StringComparer.OrdinalIgnoreCase)
@@ -224,6 +232,7 @@ private static readonly HashSet<string> Blacklist =
 ```
 
 **Register a known bloatware entry** (shown with amber highlight and "Bloatware" tag):
+
 ```csharp
 private static readonly Dictionary<string, string> KnownItems =
     new(StringComparer.OrdinalIgnoreCase)
@@ -234,6 +243,7 @@ private static readonly Dictionary<string, string> KnownItems =
 ```
 
 **Protect a custom folder by name** (case-insensitive, uses `Contains`):
+
 ```csharp
 private static readonly string[] CustomFolders =
 {
@@ -243,9 +253,11 @@ private static readonly string[] CustomFolders =
 ```
 
 **Finding a GUID:** open `regedit.exe` and navigate to:
+
 ```
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace
 ```
+
 Each sub-key is a GUID. The `(Default)` value is the display name.
 
 </details>
@@ -256,25 +268,25 @@ Each sub-key is a GUID. The `(Default)` value is the display name.
 
 Requires [.NET SDK 9.0](https://dotnet.microsoft.com/en-us/download).
 
+Building the GUI also requires the **Windows App SDK** tooling — in Visual Studio, the "Windows application development" workload; in VS Code, the C# Dev Kit extension plus the .NET SDK is enough (no live XAML designer/hot-reload, but builds and runs fine).
+
 **GUI — win-x64:**
+
 ```bash
-dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false
+dotnet publish QuickA-Cleanup-GUI\QuickA-Cleanup-GUI.csproj -c Release -r win-x64 --self-contained true -p:WindowsPackageType=None -p:DebugType=None -p:DebugSymbols=false
 ```
 
+Output is a self-contained folder (not a single `.exe` — WinUI 3 doesn't support `PublishSingleFile`). Zip the output folder for distribution, or run `QuickA-Cleanup-GUI.exe` directly from inside it.
+
 **CLI — win-x64:**
+
 ```bash
 dotnet publish QuickA-Cleanup-CLI\QuickA-Cleanup-CLI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true -p:DebugType=None -p:DebugSymbols=false
 ```
 
 Replace `-r win-x64` with `-r win-x86` or `-r win-arm64` for other targets.
 
-> ⚠️ WPF requires the `-windows` target framework suffix — the `.csproj` files already handle this. Do not change `net9.0-windows` to `net9.0`.
-
-**Triggering an automated release via commit message:**
-```
-Release V2.0.0
-```
-Commits containing `Testing`, `Dev`, or `Development` are skipped automatically.
+> ⚠️ Do not change the GUI's `net9.0-windows10.0.19041.0` target framework or the CLI's `net9.0-windows` — both are required for their respective UI frameworks.
 
 </details>
 
@@ -286,11 +298,11 @@ Commits containing `Testing`, `Dev`, or `Development` are skipped automatically.
 QuickA-Cleanup-CLI.exe [options]
 ```
 
-| Flag | Description |
-|---|---|
-| `--dry-run` | Preview all changes — nothing written to registry |
-| `--no-backup` | Skip the automatic `.reg` backup |
-| `--help` / `-h` | Show usage and exit |
+| Flag            | Description                                       |
+| --------------- | ------------------------------------------------- |
+| `--dry-run`     | Preview all changes — nothing written to registry |
+| `--no-backup`   | Skip the automatic `.reg` backup                  |
+| `--help` / `-h` | Show usage and exit                               |
 
 </details>
 

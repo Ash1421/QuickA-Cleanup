@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="QuickA_Cleanup.GUI.SettingsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:QuickA_Cleanup.GUI"
+    Title="Settings"
+    CloseButtonText="Close"
+    DefaultButton="Close"
+    CornerRadius="8"
+    MinWidth="680">
+
+    <ScrollViewer MaxHeight="560">
+        <StackPanel Spacing="10" Padding="0,4,4,0">
+
+            <TextBlock Text="APPEARANCE" Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold"/>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="14">
+                    <RadioButtons x:Name="ThemeButtons" Header="Theme" SelectionChanged="ThemeButtons_SelectionChanged">
+                        <RadioButton Content="Light"/>
+                        <RadioButton Content="Dark"/>
+                        <RadioButton Content="Match Windows"/>
+                    </RadioButtons>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Accent color" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <ContentControl x:Name="AccentSwatchList" HorizontalContentAlignment="Left"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="TESTING" Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="Test Registry Entries" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <TextBlock x:Name="TxtTestpinStatus" Text="Checking..." Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="BtnDownloadTestpins" Content="Download" Click="BtnDownloadTestpins_Click"/>
+                            <Button x:Name="BtnInstallTestpins" Content="Install" Click="BtnInstallTestpins_Click"
+                                    Style="{StaticResource AccentFilledButtonStyle}" IsEnabled="False"/>
+                            <Button x:Name="BtnRemoveTestpins" Content="Remove" Click="BtnRemoveTestpins_Click"
+                                    Style="{StaticResource DangerButtonStyle}" IsEnabled="False"/>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock x:Name="TxtTestStatus" Text="" Style="{StaticResource CaptionTextBlockStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="LOGS" Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="10">
+                    <RadioButtons x:Name="LevelButtons" Header="Minimum log level" SelectionChanged="LevelButtons_SelectionChanged">
+                        <RadioButton Content="Trace"/>
+                        <RadioButton Content="Dev"/>
+                        <RadioButton Content="Warn"/>
+                        <RadioButton Content="Error"/>
+                    </RadioButtons>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Log file" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" x:Name="TxtLogPath" IsReadOnly="True"
+                                      FontFamily="Cascadia Mono, Consolas" FontSize="11"/>
+                            <Button Grid.Column="1" Content="Copy" Click="BtnCopyLogPath_Click" Margin="8,0,0,0"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Expander x:Name="LogExpander" Header="Log viewer" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="TxtLogCount" Text="0 entries" Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="Clear" Click="BtnClearLog_Click"/>
+                            </Grid>
+
+                            <!-- Read-only but fully selectable/copyable, unlike a plain TextBlock list. -->
+                            <TextBox x:Name="LogTextBox" IsReadOnly="True" Height="200"
+                                     AcceptsReturn="True" TextWrapping="NoWrap"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                     FontFamily="Cascadia Mono, Consolas" FontSize="11"/>
+                        </StackPanel>
+                    </Expander>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="DEVELOPER" Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Restart Explorer after removal" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center"/>
+                        <ToggleSwitch Grid.Column="1" x:Name="ToggleRestartExplorer" OnContent="On" OffContent="Off"
+                                      Toggled="ToggleRestartExplorer_Toggled"/>
+                    </Grid>
+                    <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                        Not recommended to turn off. Without a restart, removed entries may still be visible in the
+                        navigation pane until Explorer is restarted some other way.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Margin="0,10,0,0"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16" Margin="0,6,0,0">
+                <HyperlinkButton Content="QuickA-Cleanup on GitHub" NavigateUri="https://github.com/Ash1421/QuickA-Cleanup"/>
+                <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                    <Run Text="Made by"/>
+                    <Hyperlink NavigateUri="https://github.com/Ash1421"><Run Text="@Ash1421"/></Hyperlink>
+                </TextBlock>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
