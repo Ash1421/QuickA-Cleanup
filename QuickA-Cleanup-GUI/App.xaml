@@ -9,18 +9,10 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Accent brushes: colour is mutated at runtime by ThemeManager.ApplyAccent
-                 so every control bound to these updates live, without restarting the app. -->
             <SolidColorBrush x:Key="AccentBrush" Color="#7C3AED"/>
             <SolidColorBrush x:Key="AccentBrushSubtle" Color="#7C3AED" Opacity="0.14"/>
             <SolidColorBrush x:Key="AccentForegroundBrush" Color="White"/>
 
-            <!-- These specific keys are what native Fluent controls (CheckBox, RadioButton,
-                 ToggleSwitch, ...) actually bind to for their checked/on-state fill —
-                 overwriting "SystemAccentColor" alone does NOT reach them, because
-                 XamlControlsResources bakes these from the real OS accent the moment it's
-                 merged above. Defining our own copies here, at the root dictionary, shadows
-                 the built-in ones for every control created afterwards. -->
             <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#7C3AED"/>
             <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#7C3AED"/>
             <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#7C3AED"/>

@@ -3,23 +3,12 @@ using System.Text.Json;
 
 namespace QuickA_Cleanup.GUI;
 
-/// <summary>
-/// Small persisted, non-appearance app settings (things that live under a
-/// "Developer" section rather than "Appearance"). Kept separate from
-/// ThemeManager since these are behavioural toggles, not theming.
-/// </summary>
 public static class AppSettings
 {
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "QuickA-Cleanup", "app-settings.json");
 
-    /// <summary>
-    /// Whether Explorer is restarted after a real (non-dry-run) removal.
-    /// Enabled by default — turning this off means removed entries won't
-    /// disappear from the navigation pane until Explorer is restarted some
-    /// other way, so it's flagged as not recommended in the UI.
-    /// </summary>
     public static bool RestartExplorerAfterRemoval { get; set; } = true;
 
     private class Persisted
@@ -40,7 +29,6 @@ public static class AppSettings
         }
         catch
         {
-            // Fall back to defaults — never block startup on a corrupt settings file.
         }
     }
 
@@ -56,7 +44,6 @@ public static class AppSettings
         }
         catch
         {
-            // Never crash the app over a settings write failure.
         }
     }
 }

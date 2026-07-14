@@ -35,11 +35,6 @@ public class LogEntry
     };
 }
 
-/// <summary>
-/// Simple in-memory + on-disk log used by the Settings log viewer. Marshals
-/// UI-bound collection changes onto the main window's DispatcherQueue so it
-/// can safely be called from background scan/removal work.
-/// </summary>
 public class LogService
 {
     private static LogService? _instance;
@@ -69,7 +64,7 @@ public class LogService
         lock (_lock)
         {
             try { File.AppendAllText(_logPath, entry.Formatted + Environment.NewLine); }
-            catch { /* never crash on log write */ }
+            catch { }
         }
     }
 

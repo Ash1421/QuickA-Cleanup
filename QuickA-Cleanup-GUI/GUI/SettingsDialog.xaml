@@ -33,6 +33,35 @@
                 </StackPanel>
             </Border>
 
+            <TextBlock Text="UPDATES" Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock x:Name="TxtCurrentVersion" Text="QuickA-Cleanup V3.0.1" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <TextBlock x:Name="TxtUpdateStatus" Text="Checking for updates..." Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <ProgressRing x:Name="UpdateSpinner" IsActive="False" Width="18" Height="18" Visibility="Collapsed"/>
+                            <Button x:Name="BtnCheckForUpdates" Content="Check for Updates" Click="BtnCheckForUpdates_Click"/>
+                            <Button x:Name="BtnDownloadUpdate" Content="Download" Click="BtnDownloadUpdate_Click"
+                                    Style="{StaticResource AccentFilledButtonStyle}" Visibility="Collapsed"/>
+                            <Button x:Name="BtnRestartToUpdate" Content="Restart &amp; Update" Click="BtnRestartToUpdate_Click"
+                                    Style="{StaticResource AccentFilledButtonStyle}" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <TextBlock Text="TESTING" Style="{StaticResource CaptionTextBlockStyle}"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold" Margin="0,6,0,0"/>
 
@@ -101,7 +130,6 @@
                                 <Button Grid.Column="1" Content="Clear" Click="BtnClearLog_Click"/>
                             </Grid>
 
-                            <!-- Read-only but fully selectable/copyable, unlike a plain TextBlock list. -->
                             <TextBox x:Name="LogTextBox" IsReadOnly="True" Height="200"
                                      AcceptsReturn="True" TextWrapping="NoWrap"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"

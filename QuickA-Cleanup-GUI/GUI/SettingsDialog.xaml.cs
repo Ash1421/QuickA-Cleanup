@@ -10,10 +10,6 @@ using QuickA_Cleanup.Core.Services;
 
 namespace QuickA_Cleanup.GUI;
 
-/// <summary>
-/// Settings surface, shown as a native ContentDialog over MainWindow.
-/// Covers appearance (theme + accent), the testpin testing helper, and the log viewer.
-/// </summary>
 public sealed partial class SettingsDialog : ContentDialog
 {
     private const string TestpinsUrl =
@@ -51,14 +47,18 @@ public sealed partial class SettingsDialog : ContentDialog
 
         ToggleRestartExplorer.IsOn = AppSettings.RestartExplorerAfterRemoval;
 
+        var version = GetType().Assembly.GetName().Version;
+        TxtCurrentVersion.Text = $"QuickA-Cleanup V{version?.ToString(3) ?? "3.0.1"}";
+        UpdateService.StateChanged += RefreshUpdateUi;
+        Closed += (_, _) => UpdateService.StateChanged -= RefreshUpdateUi;
+        RefreshUpdateUi();
+
         TxtLogPath.Text = _log.LogFilePath;
 
         RefreshLogList();
         _log.Entries.CollectionChanged += (_, _) => RefreshLogList();
         RefreshTestpinStatus();
     }
-
-    // ── Appearance ───────────────────────────────────────────────────────────
 
     private void BuildAccentSwatches()
     {
@@ -93,7 +93,6 @@ public sealed partial class SettingsDialog : ContentDialog
             panel.Children.Add(button);
         }
 
-        // "Match Windows" — follows the live OS accent colour instead of a fixed swatch.
         var matchWindowsButton = new Button
         {
             Content = "Match Windows",
@@ -132,8 +131,6 @@ public sealed partial class SettingsDialog : ContentDialog
         };
         ThemeManager.ApplyTheme((FrameworkElement)_owner.Content, mode);
     }
-
-    // ── Testing ──────────────────────────────────────────────────────────────
 
     private void RefreshTestpinStatus()
     {
@@ -226,8 +223,6 @@ public sealed partial class SettingsDialog : ContentDialog
         TxtTestStatus.Foreground = isError ? StatusColors.Critical : StatusColors.Success;
     }
 
-    // ── Log level / viewer ───────────────────────────────────────────────────
-
     private void LevelButtons_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_initializing) return;
@@ -268,7 +263,44 @@ public sealed partial class SettingsDialog : ContentDialog
         Clipboard.SetContent(package);
     }
 
-    // ── Developer ─────────────────────────────────────────────
+    private void RefreshUpdateUi()
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            bool downloading = UpdateService.State == UpdateState.Downloading;
+            UpdateSpinner.Visibility = downloading ? Visibility.Visible : Visibility.Collapsed;
+            UpdateSpinner.IsActive = downloading;
+
+            BtnDownloadUpdate.Visibility = UpdateService.State == UpdateState.Available ? Visibility.Visible : Visibility.Collapsed;
+            BtnRestartToUpdate.Visibility = UpdateService.State == UpdateState.ReadyToInstall ? Visibility.Visible : Visibility.Collapsed;
+            BtnCheckForUpdates.IsEnabled = !downloading;
+
+            TxtUpdateStatus.Text = UpdateService.State switch
+            {
+                UpdateState.Unknown        => "Checking for updates...",
+                UpdateState.UpToDate       => "You're on the latest version.",
+                UpdateState.Available      => $"Update V{UpdateService.AvailableVersion} available.",
+                UpdateState.Downloading    => $"Downloading V{UpdateService.AvailableVersion}...",
+                UpdateState.ReadyToInstall => $"V{UpdateService.AvailableVersion} downloaded — restart to install.",
+                UpdateState.NotInstalled   => "Updates aren't available for this copy (not installed via the installer).",
+                UpdateState.Error          => "Update check failed — see logs.",
+                _                          => ""
+            };
+        });
+    }
+
+    private async void BtnCheckForUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        BtnCheckForUpdates.IsEnabled = false;
+        await UpdateService.CheckAsync(logResult: true);
+        BtnCheckForUpdates.IsEnabled = true;
+    }
+
+    private async void BtnDownloadUpdate_Click(object sender, RoutedEventArgs e) =>
+        await UpdateService.DownloadAsync();
+
+    private void BtnRestartToUpdate_Click(object sender, RoutedEventArgs e) =>
+        UpdateService.ApplyAndRestart();
 
     private void ToggleRestartExplorer_Toggled(object sender, RoutedEventArgs e)
     {

@@ -6,10 +6,6 @@ using QuickA_Cleanup.Core.Models;
 
 namespace QuickA_Cleanup.GUI;
 
-/// <summary>
-/// Thin UI wrapper around a scanned <see cref="QuickAccessItem"/>: adds the
-/// selection checkbox state and the badge colours the list row displays.
-/// </summary>
 public class ItemViewModel : INotifyPropertyChanged
 {
     public QuickAccessItem Item { get; }
@@ -46,7 +42,6 @@ public class ItemViewModel : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Raised whenever IsSelected changes, so the owning window can refresh its count/enabled state.</summary>
     public event Action? SelectionChanged;
 
     public event PropertyChangedEventHandler? PropertyChanged;

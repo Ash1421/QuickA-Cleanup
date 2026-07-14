@@ -9,7 +9,6 @@ namespace QuickA_Cleanup.GUI;
 
 public enum AppThemeMode { Light, Dark, System }
 
-/// <summary>Whether the accent colour follows a fixed swatch or the live Windows system accent.</summary>
 public enum AccentMode { Custom, WindowsAccent }
 
 public class AccentSwatch
@@ -18,12 +17,6 @@ public class AccentSwatch
     public Color Color { get; init; }
 }
 
-/// <summary>
-/// Fixed semantic status colours (success / caution / critical) used for the
-/// header dot indicators. Deliberately not theme-resource-driven: resolving
-/// ThemeResource keys from code-behind is unreliable in WinUI 3, and these
-/// specific hues read fine on both light and dark surfaces anyway.
-/// </summary>
 public static class StatusColors
 {
     public static readonly SolidColorBrush Success  = new(Color.FromArgb(255, 0x10, 0xB9, 0x81));
@@ -31,20 +24,6 @@ public static class StatusColors
     public static readonly SolidColorBrush Critical = new(Color.FromArgb(255, 0xEF, 0x44, 0x44));
 }
 
-/// <summary>
-/// Owns the app's theme mode (Light/Dark/System) and accent colour, including
-/// persistence to a small JSON file under %LocalAppData%.
-///
-/// Accent is applied two ways: (1) mutating the app's own "AccentBrush"/
-/// "AccentBrushSubtle" SolidColorBrush instances in place, which updates
-/// every control referencing them live, with no restart; and (2) overwriting
-/// the Application-level SystemAccentColor + tonal variants, so native Fluent
-/// controls (CheckBox, RadioButton, etc.) that bind to the *real* Windows
-/// accent pick up the same colour instead of the OS's own blue. Note (2) only
-/// affects controls created *after* the change (e.g. the next time Settings
-/// is opened) — WinUI doesn't retroactively re-flow already-instantiated
-/// native control templates the way DynamicResource does in WPF.
-/// </summary>
 public static class ThemeManager
 {
     private static readonly string SettingsPath = Path.Combine(
@@ -68,7 +47,7 @@ public static class ThemeManager
 
     public static AppThemeMode ThemeMode { get; private set; } = AppThemeMode.System;
     public static AccentMode AccentSource { get; private set; } = AccentMode.Custom;
-    public static Color AccentColor { get; private set; } = Swatches[0].Color; // Violet by default
+    public static Color AccentColor { get; private set; } = Swatches[0].Color;
 
     private class Persisted
     {
@@ -96,7 +75,6 @@ public static class ThemeManager
         }
         catch
         {
-            // Fall back to defaults — never block startup on a corrupt settings file.
         }
 
         if (AccentSource == AccentMode.WindowsAccent)
@@ -121,7 +99,6 @@ public static class ThemeManager
         }
         catch
         {
-            // Never crash the app over a settings write failure.
         }
     }
 
@@ -137,7 +114,6 @@ public static class ThemeManager
         Save();
     }
 
-    /// <summary>Pin the accent to a fixed swatch colour.</summary>
     public static void ApplyAccent(Color color)
     {
         AccentSource = AccentMode.Custom;
@@ -147,7 +123,6 @@ public static class ThemeManager
         Save();
     }
 
-    /// <summary>Follow the live Windows system accent colour instead of a fixed swatch.</summary>
     public static void ApplyWindowsAccent()
     {
         AccentSource = AccentMode.WindowsAccent;
@@ -176,8 +151,6 @@ public static class ThemeManager
         if (AccentSource != AccentMode.WindowsAccent) return;
 
         AccentColor = GetWindowsAccentColor();
-
-        // ColorValuesChanged fires off the UI thread — marshal back before touching brushes.
         App.MainWin?.DispatcherQueue.TryEnqueue(() => MutateBrushes(AccentColor));
     }
 
@@ -192,16 +165,10 @@ public static class ThemeManager
         MutateBrush(app, "AccentBrush", color);
         MutateBrush(app, "AccentBrushSubtle", color);
 
-        // The keys native Fluent controls (CheckBox, RadioButton, ToggleSwitch, ...) actually
-        // bind to for their checked/on-state fill — this is the real fix for those controls
-        // still showing Windows' own accent colour.
         MutateBrush(app, "AccentFillColorDefaultBrush", color);
         MutateBrush(app, "AccentFillColorSecondaryBrush", color);
         MutateBrush(app, "AccentFillColorTertiaryBrush", color);
 
-        // Belt-and-braces: also override the raw system-accent resources, in case any
-        // control paths reference SystemAccentColor dynamically rather than via a
-        // pre-baked brush.
         app.Resources["SystemAccentColor"]      = color;
         app.Resources["SystemAccentColorLight1"] = Blend(color, 0.16);
         app.Resources["SystemAccentColorLight2"] = Blend(color, 0.32);
@@ -217,7 +184,6 @@ public static class ThemeManager
             brush.Color = color;
     }
 
-    /// <summary>Blends towards white (positive amount) or black (negative amount).</summary>
     private static Color Blend(Color c, double amount)
     {
         byte target = amount >= 0 ? (byte)255 : (byte)0;

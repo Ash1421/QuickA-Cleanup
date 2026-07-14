@@ -18,7 +18,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Custom title bar content (system draws the real caption buttons top-right) -->
         <Grid x:Name="AppTitleBar" Grid.Row="0" Margin="16,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -50,9 +49,18 @@
                     <Ellipse x:Name="DotError" Width="7" Height="7"/>
                     <TextBlock Text="Errors" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
                 </StackPanel>
+
+                <Button x:Name="BtnUpdateAvailable" Click="BtnUpdateAvailable_Click"
+                        Background="Transparent" BorderThickness="0" Padding="0"
+                        Visibility="Collapsed" ToolTipService.ToolTip="Update available — open Settings">
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Ellipse Width="7" Height="7" Fill="{StaticResource AccentBrush}"/>
+                        <TextBlock x:Name="TxtUpdateAvailable" Text="Update available" FontSize="11"
+                                   Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
-            <!-- 150px clearance keeps this off the native minimize/maximize/close cluster -->
             <Button x:Name="BtnSettings" Grid.Column="1" Click="BtnSettings_Click"
                     Background="Transparent" BorderThickness="0"
                     Padding="6" CornerRadius="4"
@@ -62,7 +70,6 @@
             </Button>
         </Grid>
 
-        <!-- Scan bar -->
         <Border Grid.Row="1" Background="{ThemeResource LayerFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,1"
                 Padding="20,14">
@@ -92,7 +99,6 @@
             </Grid>
         </Border>
 
-        <!-- Item list -->
         <Grid Grid.Row="2" Margin="20,14,20,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -154,7 +160,6 @@
             </Border>
         </Grid>
 
-        <!-- Footer -->
         <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0"
                 Padding="20,12">
@@ -174,7 +179,6 @@
             </Grid>
         </Border>
 
-        <!-- Progress overlay -->
         <Grid x:Name="ProgressOverlay" Grid.RowSpan="4" Background="{ThemeResource SmokeFillColorDefaultBrush}" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
                 <ProgressRing IsActive="True" Width="32" Height="32" HorizontalAlignment="Center"/>

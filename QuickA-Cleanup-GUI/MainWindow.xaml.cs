@@ -9,8 +9,6 @@ namespace QuickA_Cleanup.GUI;
 
 public sealed partial class MainWindow : WindowEx
 {
-    /// <summary>Pause between steps during removal/dry-run so progress is visible
-    /// instead of flashing past instantly — registry ops are near-instant otherwise.</summary>
     private const int StepDelayMs = 220;
 
     public ObservableCollection<ItemViewModel> Items { get; } = new();
@@ -35,11 +33,33 @@ public sealed partial class MainWindow : WindowEx
         DotTestpin.Fill = StatusColors.Caution;
         DotError.Fill = StatusColors.Success;
 
+        UpdateService.StateChanged += OnUpdateStateChanged;
+        OnUpdateStateChanged();
+
         _log.Trace("MainWindow initialised");
         CheckTestpinsOnStartup();
     }
 
-    // ── Status dots ──────────────────────────────────────────────────────────
+    private void OnUpdateStateChanged()
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            bool show = UpdateService.State is UpdateState.Available or UpdateState.ReadyToInstall;
+            BtnUpdateAvailable.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (show)
+                TxtUpdateAvailable.Text = UpdateService.State == UpdateState.ReadyToInstall
+                    ? $"Update V{UpdateService.AvailableVersion} ready — restart"
+                    : $"Update V{UpdateService.AvailableVersion} available";
+        });
+    }
+
+    private async void BtnUpdateAvailable_Click(object sender, RoutedEventArgs e)
+    {
+        _log.Trace("Update indicator clicked — opening Settings");
+        var dialog = new SettingsDialog(this) { XamlRoot = Content.XamlRoot };
+        await dialog.ShowAsync();
+        UpdateStatusDots();
+    }
 
     private void UpdateStatusDots(bool? hasBloat = null)
     {
@@ -63,8 +83,6 @@ public sealed partial class MainWindow : WindowEx
         UpdateStatusDots();
     }
 
-    // ── Settings ─────────────────────────────────────────────────────────────
-
     private async void BtnSettings_Click(object sender, RoutedEventArgs e)
     {
         _log.Trace("Settings opened");
@@ -72,8 +90,6 @@ public sealed partial class MainWindow : WindowEx
         await dialog.ShowAsync();
         UpdateStatusDots();
     }
-
-    // ── Scan ─────────────────────────────────────────────────────────────────
 
     private async void BtnScan_Click(object sender, RoutedEventArgs e)
     {
@@ -123,8 +139,6 @@ public sealed partial class MainWindow : WindowEx
         }
     }
 
-    // ── Selection ────────────────────────────────────────────────────────────
-
     private void BtnSelectAll_Click(object sender, RoutedEventArgs e)
     {
         foreach (var vm in Items) vm.IsSelected = true;
@@ -143,8 +157,6 @@ public sealed partial class MainWindow : WindowEx
         TxtSelectionCount.Text = $"{count} selected";
         BtnRemove.IsEnabled = count > 0;
     }
-
-    // ── Remove ───────────────────────────────────────────────────────────────
 
     private async void BtnRemove_Click(object sender, RoutedEventArgs e)
     {
@@ -244,7 +256,7 @@ public sealed partial class MainWindow : WindowEx
             var vm = toRemove[i];
             var item = vm.Item;
             UpdateOverlaySub($"{i + 1} / {toRemove.Count} — {item.Name}");
-            await Task.Delay(StepDelayMs); // let the step be readable before/while it runs
+            await Task.Delay(StepDelayMs);
 
             if (dryRun)
             {
@@ -257,7 +269,7 @@ public sealed partial class MainWindow : WindowEx
             {
                 _log.Dev($"Removed: {item.Name}");
                 ok++;
-                Items.Remove(vm); // ListView animates the row out automatically
+                Items.Remove(vm);
             }
             else
             {
@@ -268,8 +280,6 @@ public sealed partial class MainWindow : WindowEx
 
         return (ok, fail);
     }
-
-    // ── Progress helpers ─────────────────────────────────────────────────────
 
     private void ShowOverlay(string title, string sub = "")
     {
