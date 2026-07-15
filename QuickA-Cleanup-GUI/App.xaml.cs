@@ -16,6 +16,13 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        if (!ElevationHelper.IsElevated())
+        {
+            ElevationHelper.TryRelaunchElevated();
+            Environment.Exit(0);
+            return;
+        }
+
         ThemeManager.Load();
         AppSettings.Load();
 
