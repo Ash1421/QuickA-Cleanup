@@ -337,18 +337,6 @@ Read the full license [here](/LICENSE).
 
 ---
 
-<h2 align="center">💫 Star History</h2>
-
-<a href="https://www.star-history.com/#Ash1421/QuickA-Cleanup&type=date&legend=top-left">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Ash1421/QuickA-Cleanup&type=date&theme=dark&legend=top-left" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Ash1421/QuickA-Cleanup&type=date&legend=top-left" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Ash1421/QuickA-Cleanup&type=date&legend=top-left" />
-  </picture>
-</a>
-
----
-
 <div align="center">
 
 **If you find this tool useful, please consider giving it a ⭐!**
